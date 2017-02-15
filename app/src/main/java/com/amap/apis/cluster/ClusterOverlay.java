@@ -59,8 +59,6 @@ public class ClusterOverlay implements AMap.OnCameraChangeListener, AMap.OnMarke
      */
     public ClusterOverlay(AMap amap, int clusterSize, Context context) {
         this(amap, null, clusterSize, context);
-
-
     }
 
     /**

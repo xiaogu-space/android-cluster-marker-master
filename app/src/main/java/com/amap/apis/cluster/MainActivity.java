@@ -24,19 +24,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class MainActivity extends Activity implements ClusterRender,
-        AMap.OnMapLoadedListener, ClusterClickListener {
-
-
+public class MainActivity extends Activity implements ClusterRender, AMap.OnMapLoadedListener, ClusterClickListener {
     private MapView mMapView;
     private AMap mAMap;
-
     private int clusterRadius = 100;
-
-    private Map<Integer, Drawable> mBackDrawAbles = new HashMap<Integer, Drawable>();
-
+    private Map<Integer, Drawable> mBackDrawAbles = new HashMap<>();
     private ClusterOverlay mClusterOverlay;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +38,6 @@ public class MainActivity extends Activity implements ClusterRender,
         mMapView = (MapView) findViewById(R.id.map);
         mMapView.onCreate(savedInstanceState);
         init();
-
     }
 
     private void init() {
@@ -67,7 +59,6 @@ public class MainActivity extends Activity implements ClusterRender,
             });
         }
     }
-
 
     protected void onResume() {
         super.onResume();
@@ -96,14 +87,11 @@ public class MainActivity extends Activity implements ClusterRender,
                 for (int i = 0; i < 10000; i++) {
                     double lat = Math.random() + 39.474923;
                     double lon = Math.random() + 116.027116;
-
                     LatLng latLng = new LatLng(lat, lon, false);
                     RegionItem regionItem = new RegionItem(latLng, "test" + i);
                     items.add(regionItem);
-
                 }
-                mClusterOverlay = new ClusterOverlay(mAMap, items, dp2px(getApplicationContext(),
-                        clusterRadius), getApplicationContext());
+                mClusterOverlay = new ClusterOverlay(mAMap, items, dp2px(getApplicationContext(), clusterRadius), getApplicationContext());
                 mClusterOverlay.setClusterRenderer(MainActivity.this);
                 mClusterOverlay.setOnClusterClickListener(MainActivity.this);
             }
@@ -117,8 +105,7 @@ public class MainActivity extends Activity implements ClusterRender,
             builder.include(clusterItem.getPosition());
         }
         LatLngBounds latLngBounds = builder.build();
-        mAMap.animateCamera(CameraUpdateFactory.newLatLngBounds(latLngBounds, 0)
-        );
+        mAMap.animateCamera(CameraUpdateFactory.newLatLngBounds(latLngBounds, 0));
     }
 
     @Override
@@ -127,40 +114,30 @@ public class MainActivity extends Activity implements ClusterRender,
         if (clusterNum == 1) {
             Drawable bitmapDrawable = mBackDrawAbles.get(1);
             if (bitmapDrawable == null) {
-                bitmapDrawable =
-                        getApplication().getResources().getDrawable(
-                                R.drawable.icon_openmap_mark);
+                bitmapDrawable = getApplication().getResources().getDrawable(R.drawable.icon_openmap_mark);
                 mBackDrawAbles.put(1, bitmapDrawable);
             }
-
             return bitmapDrawable;
         } else if (clusterNum < 5) {
-
             Drawable bitmapDrawable = mBackDrawAbles.get(2);
             if (bitmapDrawable == null) {
-                bitmapDrawable = new BitmapDrawable(null, drawCircle(radius,
-                        Color.argb(159, 210, 154, 6)));
+                bitmapDrawable = new BitmapDrawable(null, drawCircle(radius, Color.argb(159, 210, 154, 6)));
                 mBackDrawAbles.put(2, bitmapDrawable);
             }
-
             return bitmapDrawable;
         } else if (clusterNum < 10) {
             Drawable bitmapDrawable = mBackDrawAbles.get(3);
             if (bitmapDrawable == null) {
-                bitmapDrawable = new BitmapDrawable(null, drawCircle(radius,
-                        Color.argb(199, 217, 114, 0)));
+                bitmapDrawable = new BitmapDrawable(null, drawCircle(radius, Color.argb(199, 217, 114, 0)));
                 mBackDrawAbles.put(3, bitmapDrawable);
             }
-
             return bitmapDrawable;
         } else {
             Drawable bitmapDrawable = mBackDrawAbles.get(4);
             if (bitmapDrawable == null) {
-                bitmapDrawable = new BitmapDrawable(null, drawCircle(radius,
-                        Color.argb(235, 215, 66, 2)));
+                bitmapDrawable = new BitmapDrawable(null, drawCircle(radius, Color.argb(235, 215, 66, 2)));
                 mBackDrawAbles.put(4, bitmapDrawable);
             }
-
             return bitmapDrawable;
         }
     }
