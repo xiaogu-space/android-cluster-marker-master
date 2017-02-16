@@ -11,22 +11,22 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
-import com.amap.api.maps.AMap;
-import com.amap.api.maps.CameraUpdateFactory;
-import com.amap.api.maps.MapView;
-import com.amap.api.maps.model.LatLng;
-import com.amap.api.maps.model.LatLngBounds;
-import com.amap.api.maps.model.Marker;
 import com.amap.apis.cluster.demo.RegionItem;
+import com.baidu.mapapi.map.BaiduMap;
+import com.baidu.mapapi.map.MapPoi;
+import com.baidu.mapapi.map.MapView;
+import com.baidu.mapapi.map.Marker;
+import com.baidu.mapapi.model.LatLng;
+import com.baidu.mapapi.model.LatLngBounds;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class MainActivity extends Activity implements ClusterRender, AMap.OnMapLoadedListener, ClusterClickListener {
+public class MainActivity extends Activity implements ClusterRender, BaiduMap.OnMapRenderCallback, ClusterClickListener {
     private MapView mMapView;
-    private AMap mAMap;
+    private BaiduMap mAMap;
     private int clusterRadius = 100;
     private Map<Integer, Drawable> mBackDrawAbles = new HashMap<>();
     private ClusterOverlay mClusterOverlay;
@@ -36,7 +36,7 @@ public class MainActivity extends Activity implements ClusterRender, AMap.OnMapL
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mMapView = (MapView) findViewById(R.id.map);
-        mMapView.onCreate(savedInstanceState);
+        mMapView.onCreate(this, savedInstanceState);
         init();
     }
 
@@ -44,17 +44,22 @@ public class MainActivity extends Activity implements ClusterRender, AMap.OnMapL
         if (mAMap == null) {
             // 初始化地图
             mAMap = mMapView.getMap();
-            mAMap.setOnMapLoadedListener(this);
+            mAMap.setOnMapRenderCallbadk(this);
             //点击可以动态添加点
-            mAMap.setOnMapClickListener(new AMap.OnMapClickListener() {
+            mAMap.setOnMapClickListener(new BaiduMap.OnMapClickListener() {
                 @Override
                 public void onMapClick(LatLng latLng) {
                     double lat = Math.random() + 39.474923;
                     double lon = Math.random() + 116.027116;
 
-                    LatLng latLng1 = new LatLng(lat, lon, false);
+                    LatLng latLng1 = new LatLng(lat, lon);
                     RegionItem regionItem = new RegionItem(latLng1, "test");
                     mClusterOverlay.addClusterItem(regionItem);
+                }
+
+                @Override
+                public boolean onMapPoiClick(MapPoi mapPoi) {
+                    return false;
                 }
             });
         }
@@ -78,7 +83,7 @@ public class MainActivity extends Activity implements ClusterRender, AMap.OnMapL
     }
 
     @Override
-    public void onMapLoaded() {
+    public void onMapRenderFinished() {
         //添加测试数据
         new Thread() {
             public void run() {
@@ -87,7 +92,7 @@ public class MainActivity extends Activity implements ClusterRender, AMap.OnMapL
                 for (int i = 0; i < 10000; i++) {
                     double lat = Math.random() + 39.474923;
                     double lon = Math.random() + 116.027116;
-                    LatLng latLng = new LatLng(lat, lon, false);
+                    LatLng latLng = new LatLng(lat, lon);
                     RegionItem regionItem = new RegionItem(latLng, "test" + i);
                     items.add(regionItem);
                 }
@@ -104,8 +109,9 @@ public class MainActivity extends Activity implements ClusterRender, AMap.OnMapL
         for (ClusterItem clusterItem : clusterItems) {
             builder.include(clusterItem.getPosition());
         }
-        LatLngBounds latLngBounds = builder.build();
-        mAMap.animateCamera(CameraUpdateFactory.newLatLngBounds(latLngBounds, 0));
+        //TODO
+        //        LatLngBounds latLngBounds = builder.build();
+        //        mAMap.animateCamera(CameraUpdateFactory.newLatLngBounds(latLngBounds, 0));
     }
 
     @Override
@@ -159,4 +165,6 @@ public class MainActivity extends Activity implements ClusterRender, AMap.OnMapL
         final float scale = context.getResources().getDisplayMetrics().density;
         return (int) (dpValue * scale + 0.5f);
     }
+
+
 }

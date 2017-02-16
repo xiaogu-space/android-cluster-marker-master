@@ -1,8 +1,9 @@
 package com.amap.apis.cluster;
 
-import com.amap.api.maps.model.LatLng;
-import com.amap.api.maps.model.Marker;
+import com.baidu.mapapi.map.Marker;
+import com.baidu.mapapi.model.LatLng;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,7 +11,7 @@ import java.util.List;
  * Created by yiyi.qi on 16/10/10.
  */
 
-public class Cluster {
+public class Cluster implements Serializable{
     private LatLng mLatLng;
     private List<ClusterItem> mClusterItems;
     private Marker mMarker;

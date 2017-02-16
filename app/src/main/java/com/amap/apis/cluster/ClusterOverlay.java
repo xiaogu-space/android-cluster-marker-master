@@ -2,27 +2,28 @@ package com.amap.apis.cluster;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
+import android.support.v4.util.LruCache;
 import android.util.Log;
-import android.util.LruCache;
 import android.util.TypedValue;
 import android.view.Gravity;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
 import android.widget.TextView;
 
-import com.amap.api.maps.AMap;
-import com.amap.api.maps.AMapUtils;
-import com.amap.api.maps.model.BitmapDescriptor;
-import com.amap.api.maps.model.BitmapDescriptorFactory;
-import com.amap.api.maps.model.CameraPosition;
-import com.amap.api.maps.model.LatLng;
-import com.amap.api.maps.model.LatLngBounds;
-import com.amap.api.maps.model.Marker;
-import com.amap.api.maps.model.MarkerOptions;
-import com.amap.api.maps.model.animation.AlphaAnimation;
-import com.amap.api.maps.model.animation.Animation;
+
+import com.baidu.mapapi.map.BaiduMap;
+import com.baidu.mapapi.map.BitmapDescriptor;
+import com.baidu.mapapi.map.BitmapDescriptorFactory;
+import com.baidu.mapapi.map.MapStatus;
+import com.baidu.mapapi.map.Marker;
+import com.baidu.mapapi.map.MarkerOptions;
+import com.baidu.mapapi.model.LatLng;
+import com.baidu.mapapi.model.LatLngBounds;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,8 +33,8 @@ import java.util.List;
  * Created by yiyi.qi on 16/10/10.
  * 整体设计采用了两个线程,一个线程用于计算组织聚合数据,一个线程负责处理Marker相关操作
  */
-public class ClusterOverlay implements AMap.OnCameraChangeListener, AMap.OnMarkerClickListener {
-    private AMap mAMap;
+public class ClusterOverlay implements BaiduMap.OnMapStatusChangeListener, BaiduMap.OnMarkerClickListener {
+    private BaiduMap mAMap;
     private Context mContext;
     private List<ClusterItem> mClusterItems;
     private List<Cluster> mClusters;
@@ -57,7 +58,7 @@ public class ClusterOverlay implements AMap.OnCameraChangeListener, AMap.OnMarke
      * @param clusterSize 聚合范围的大小（指点像素单位距离内的点会聚合到一个点显示）
      * @param context
      */
-    public ClusterOverlay(AMap amap, int clusterSize, Context context) {
+    public ClusterOverlay(BaiduMap amap, int clusterSize, Context context) {
         this(amap, null, clusterSize, context);
     }
 
@@ -69,7 +70,7 @@ public class ClusterOverlay implements AMap.OnCameraChangeListener, AMap.OnMarke
      * @param clusterSize
      * @param context
      */
-    public ClusterOverlay(AMap amap, List<ClusterItem> clusterItems, int clusterSize, Context context) {
+    public ClusterOverlay(BaiduMap amap, List<ClusterItem> clusterItems, int clusterSize, Context context) {
         //默认最多会缓存80张图片作为聚合显示元素图片,根据自己显示需求和app使用内存情况,可以修改数量
         mLruCache = new LruCache<Integer, BitmapDescriptor>(80) {
             protected void entryRemoved(boolean evicted, Integer key, BitmapDescriptor oldValue, BitmapDescriptor newValue) {
@@ -87,7 +88,7 @@ public class ClusterOverlay implements AMap.OnCameraChangeListener, AMap.OnMarke
         mClusterSize = clusterSize;
         mPXInMeters = mAMap.getScalePerPixel();
         mClusterDistance = mPXInMeters * mClusterSize;
-        amap.setOnCameraChangeListener(this);
+        amap.setOnMapStatusChangeListener(this);
         amap.setOnMarkerClickListener(this);
         initThreadHandler();
         assignClusters();
@@ -145,11 +146,17 @@ public class ClusterOverlay implements AMap.OnCameraChangeListener, AMap.OnMarke
     }
 
     @Override
-    public void onCameraChange(CameraPosition arg0) {
+    public void onMapStatusChangeStart(MapStatus mapStatus) {
+
     }
 
     @Override
-    public void onCameraChangeFinish(CameraPosition arg0) {
+    public void onMapStatusChange(MapStatus mapStatus) {
+
+    }
+
+    @Override
+    public void onMapStatusChangeFinish(MapStatus mapStatus) {
         mPXInMeters = mAMap.getScalePerPixel();
         mClusterDistance = mPXInMeters * mClusterSize;
         assignClusters();
@@ -161,7 +168,9 @@ public class ClusterOverlay implements AMap.OnCameraChangeListener, AMap.OnMarke
         if (mClusterClickListener == null) {
             return true;
         }
-        Cluster cluster = (Cluster) arg0.getObject();
+        Bundle bundle=arg0.getExtraInfo();
+        Cluster cluster = (Cluster) bundle.getSerializable("aaaa");
+//        Cluster cluster = (Cluster) arg0.getObject();
         if (cluster != null) {
             mClusterClickListener.onClick(arg0, cluster.getClusterItems());
             return true;
@@ -176,13 +185,15 @@ public class ClusterOverlay implements AMap.OnCameraChangeListener, AMap.OnMarke
     private void addClusterToMap(List<Cluster> clusters) {
         ArrayList<Marker> removeMarkers = new ArrayList<>();
         removeMarkers.addAll(mAddMarkers);
-        AlphaAnimation alphaAnimation = new AlphaAnimation(1, 0);
-        MyAnimationListener myAnimationListener = new MyAnimationListener(removeMarkers);
+//        AlphaAnimation alphaAnimation = new AlphaAnimation(1, 0);
+//        MyAnimationListener myAnimationListener = new MyAnimationListener(removeMarkers);
         for (Marker marker : removeMarkers) {
-            marker.setAnimation(alphaAnimation);
-            marker.setAnimationListener(myAnimationListener);
-            marker.startAnimation();
+//            marker.setAnimation(alphaAnimation);
+//            marker.setAnimationListener(myAnimationListener);
+//            marker.startAnimation();
+            marker.remove();
         }
+        removeMarkers.clear();
         for (Cluster cluster : clusters) {
             addSingleClusterToMap(cluster);
         }
@@ -199,11 +210,17 @@ public class ClusterOverlay implements AMap.OnCameraChangeListener, AMap.OnMarke
         LatLng latlng = cluster.getCenterLatLng();
         MarkerOptions markerOptions = new MarkerOptions();
         markerOptions.anchor(0.5f, 0.5f).icon(getBitmapDes(cluster.getClusterCount())).position(latlng);
-        Marker marker = mAMap.addMarker(markerOptions);
-        marker.setAnimation(mADDAnimation);
-        marker.setObject(cluster);
+        Marker marker = (Marker) mAMap.addOverlay(markerOptions);
+//TODO
+//        marker.setAnimation(mADDAnimation);
+//        marker.setObject(cluster);
+//        marker.startAnimation();
 
-        marker.startAnimation();
+
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("aaaa", cluster);
+        marker.setExtraInfo(bundle);
+
         cluster.setMarker(marker);
         mAddMarkers.add(marker);
     }
@@ -274,7 +291,6 @@ public class ClusterOverlay implements AMap.OnCameraChangeListener, AMap.OnMarke
 
 
         } else {
-
             cluster = new Cluster(latlng);
             mClusters.add(cluster);
             cluster.addClusterItem(clusterItem);
@@ -337,33 +353,36 @@ public class ClusterOverlay implements AMap.OnCameraChangeListener, AMap.OnMarke
         Marker marker = cluster.getMarker();
         marker.setIcon(getBitmapDes(cluster.getClusterCount()));
     }
-
-
 //-----------------------辅助内部类用---------------------------------------------
 
-    /**
-     * marker渐变动画，动画结束后将Marker删除
-     */
-    class MyAnimationListener implements Animation.AnimationListener {
-        private List<Marker> mRemoveMarkers;
-
-        MyAnimationListener(List<Marker> removeMarkers) {
-            mRemoveMarkers = removeMarkers;
-        }
-
-        @Override
-        public void onAnimationStart() {
-
-        }
-
-        @Override
-        public void onAnimationEnd() {
-            for (Marker marker : mRemoveMarkers) {
-                marker.remove();
-            }
-            mRemoveMarkers.clear();
-        }
-    }
+//    /**
+//     * marker渐变动画，动画结束后将Marker删除
+//     */
+//    class MyAnimationListener implements Animation.AnimationListener {
+//        private List<Marker> mRemoveMarkers;
+//
+//        MyAnimationListener(List<Marker> removeMarkers) {
+//            mRemoveMarkers = removeMarkers;
+//        }
+//
+//        @Override
+//        public void onAnimationStart(Animation animation) {
+//
+//        }
+//
+//        @Override
+//        public void onAnimationEnd(Animation animation) {
+//            for (Marker marker : mRemoveMarkers) {
+//                marker.remove();
+//            }
+//            mRemoveMarkers.clear();
+//        }
+//
+//        @Override
+//        public void onAnimationRepeat(Animation animation) {
+//
+//        }
+//    }
 
     /**
      * 处理market添加，更新等操作

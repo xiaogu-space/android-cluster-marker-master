@@ -1,6 +1,6 @@
 package com.amap.apis.cluster;
 
-import com.amap.api.maps.model.Marker;
+import com.baidu.mapapi.map.Marker;
 
 import java.util.List;
 
