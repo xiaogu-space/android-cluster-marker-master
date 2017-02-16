@@ -15,6 +15,8 @@ import com.amap.apis.cluster.demo.RegionItem;
 import com.baidu.mapapi.SDKInitializer;
 import com.baidu.mapapi.map.BaiduMap;
 import com.baidu.mapapi.map.MapPoi;
+import com.baidu.mapapi.map.MapStatusUpdate;
+import com.baidu.mapapi.map.MapStatusUpdateFactory;
 import com.baidu.mapapi.map.MapView;
 import com.baidu.mapapi.map.Marker;
 import com.baidu.mapapi.model.LatLng;
@@ -107,13 +109,7 @@ public class MainActivity extends Activity implements ClusterRender, BaiduMap.On
 
     @Override
     public void onClick(Marker marker, List<ClusterItem> clusterItems) {
-        LatLngBounds.Builder builder = new LatLngBounds.Builder();
-        for (ClusterItem clusterItem : clusterItems) {
-            builder.include(clusterItem.getPosition());
-        }
-        //TODO
-        //        LatLngBounds latLngBounds = builder.build();
-        //        mAMap.animateCamera(CameraUpdateFactory.newLatLngBounds(latLngBounds, 0));
+        mAMap.animateMapStatus(MapStatusUpdateFactory.newLatLngZoom(marker.getPosition(), mAMap.getMapStatus().zoom + 1));
     }
 
     @Override
@@ -167,6 +163,4 @@ public class MainActivity extends Activity implements ClusterRender, BaiduMap.On
         final float scale = context.getResources().getDisplayMetrics().density;
         return (int) (dpValue * scale + 0.5f);
     }
-
-
 }

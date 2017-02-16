@@ -29,7 +29,6 @@ import com.baidu.mapapi.utils.DistanceUtil;
 import java.util.ArrayList;
 import java.util.List;
 
-
 /**
  * Created by yiyi.qi on 16/10/10.
  * 整体设计采用了两个线程,一个线程用于计算组织聚合数据,一个线程负责处理Marker相关操作
@@ -88,14 +87,10 @@ public class ClusterOverlay implements BaiduMap.OnMapStatusChangeListener, Baidu
         this.mAMap = amap;
         mClusterSize = clusterSize;
 
-        //        mPXInMeters = mAMap.getScalePerPixel();
-        //        mClusterDistance = mPXInMeters * mClusterSize;
-
         Projection projection = amap.getProjection();
         LatLng latLng0 = projection.fromScreenLocation(new Point(0, 0));
         LatLng latLng1 = projection.fromScreenLocation(new Point(0, mClusterSize));
         mClusterDistance = (float) DistanceUtil.getDistance(latLng0, latLng1);
-
 
         amap.setOnMapStatusChangeListener(this);
         amap.setOnMarkerClickListener(this);
@@ -166,14 +161,17 @@ public class ClusterOverlay implements BaiduMap.OnMapStatusChangeListener, Baidu
 
     @Override
     public void onMapStatusChangeFinish(MapStatus mapStatus) {
-//        mPXInMeters = mAMap.getScalePerPixel();
-//        mClusterDistance = mPXInMeters * mClusterSize;
+        setRender();
+    }
 
+    /**
+     * 设置聚合刷新
+     */
+    public void setRender() {
         Projection projection = mAMap.getProjection();
         LatLng latLng0 = projection.fromScreenLocation(new Point(0, 0));
         LatLng latLng1 = projection.fromScreenLocation(new Point(0, mClusterSize));
         mClusterDistance = (float) DistanceUtil.getDistance(latLng0, latLng1);
-
         assignClusters();
     }
 
@@ -185,7 +183,6 @@ public class ClusterOverlay implements BaiduMap.OnMapStatusChangeListener, Baidu
         }
         Bundle bundle = arg0.getExtraInfo();
         Cluster cluster = (Cluster) bundle.getSerializable("aaaa");
-//        Cluster cluster = (Cluster) arg0.getObject();
         if (cluster != null) {
             mClusterClickListener.onClick(arg0, cluster.getClusterItems());
             return true;
@@ -221,11 +218,6 @@ public class ClusterOverlay implements BaiduMap.OnMapStatusChangeListener, Baidu
         MarkerOptions markerOptions = new MarkerOptions();
         markerOptions.anchor(0.5f, 0.5f).icon(getBitmapDes(cluster.getClusterCount())).position(latlng);
         Marker marker = (Marker) mAMap.addOverlay(markerOptions);
-//TODO
-//        marker.setAnimation(mADDAnimation);
-//        marker.setObject(cluster);
-//        marker.startAnimation();
-
 
         Bundle bundle = new Bundle();
         bundle.putSerializable("aaaa", cluster);
@@ -298,8 +290,6 @@ public class ClusterOverlay implements BaiduMap.OnMapStatusChangeListener, Baidu
             message.obj = cluster;
             mMarkerhandler.removeMessages(MarkerHandler.UPDATE_SINGLE_CLUSTER);
             mMarkerhandler.sendMessageDelayed(message, 5);
-
-
         } else {
             cluster = new Cluster(latlng);
             mClusters.add(cluster);
@@ -328,7 +318,6 @@ public class ClusterOverlay implements BaiduMap.OnMapStatusChangeListener, Baidu
         }
         return null;
     }
-
 
     /**
      * 获取每个聚合点的绘制样式
@@ -363,36 +352,6 @@ public class ClusterOverlay implements BaiduMap.OnMapStatusChangeListener, Baidu
         Marker marker = cluster.getMarker();
         marker.setIcon(getBitmapDes(cluster.getClusterCount()));
     }
-//-----------------------辅助内部类用---------------------------------------------
-
-//    /**
-//     * marker渐变动画，动画结束后将Marker删除
-//     */
-//    class MyAnimationListener implements Animation.AnimationListener {
-//        private List<Marker> mRemoveMarkers;
-//
-//        MyAnimationListener(List<Marker> removeMarkers) {
-//            mRemoveMarkers = removeMarkers;
-//        }
-//
-//        @Override
-//        public void onAnimationStart(Animation animation) {
-//
-//        }
-//
-//        @Override
-//        public void onAnimationEnd(Animation animation) {
-//            for (Marker marker : mRemoveMarkers) {
-//                marker.remove();
-//            }
-//            mRemoveMarkers.clear();
-//        }
-//
-//        @Override
-//        public void onAnimationRepeat(Animation animation) {
-//
-//        }
-//    }
 
     /**
      * 处理market添加，更新等操作
