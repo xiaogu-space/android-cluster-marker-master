@@ -25,7 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class MainActivity extends Activity implements ClusterRender, BaiduMap.OnMapRenderCallback, ClusterClickListener {
+public class MainActivity extends Activity implements ClusterRender, BaiduMap.OnMapLoadedCallback, ClusterClickListener {
     private MapView mMapView;
     private BaiduMap mAMap;
     private int clusterRadius = 100;
@@ -46,7 +46,7 @@ public class MainActivity extends Activity implements ClusterRender, BaiduMap.On
         if (mAMap == null) {
             // 初始化地图
             mAMap = mMapView.getMap();
-            mAMap.setOnMapRenderCallbadk(this);
+            mAMap.setOnMapLoadedCallback(this);
             //点击可以动态添加点
             mAMap.setOnMapClickListener(new BaiduMap.OnMapClickListener() {
                 @Override
@@ -85,11 +85,11 @@ public class MainActivity extends Activity implements ClusterRender, BaiduMap.On
     }
 
     @Override
-    public void onMapRenderFinished() {
+    public void onMapLoaded() {
         //添加测试数据
         new Thread() {
             public void run() {
-                List<ClusterItem> items = new ArrayList<ClusterItem>();
+                List<ClusterItem> items = new ArrayList<>();
                 //随机10000个点
                 for (int i = 0; i < 10000; i++) {
                     double lat = Math.random() + 39.474923;
