@@ -1,4 +1,4 @@
-本工程为基于高德地图Android SDK进行封装，实现了Marker聚合效果的例子
+本工程为基于百度地图Android SDK进行封装，实现了Marker聚合效果的例子
 ## 前述 ##
 - [高德官网申请Key](http://lbs.amap.com/dev/#/).
 - 阅读[参考手册](http://a.amap.com/lbs/static/unzip/Android_Map_Doc/index.html).
