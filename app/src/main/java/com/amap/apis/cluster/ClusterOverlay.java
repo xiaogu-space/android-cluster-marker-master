@@ -2,6 +2,7 @@ package com.amap.apis.cluster;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.Point;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -12,9 +13,7 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
 import android.widget.TextView;
-
 
 import com.baidu.mapapi.map.BaiduMap;
 import com.baidu.mapapi.map.BitmapDescriptor;
@@ -22,8 +21,10 @@ import com.baidu.mapapi.map.BitmapDescriptorFactory;
 import com.baidu.mapapi.map.MapStatus;
 import com.baidu.mapapi.map.Marker;
 import com.baidu.mapapi.map.MarkerOptions;
+import com.baidu.mapapi.map.Projection;
 import com.baidu.mapapi.model.LatLng;
 import com.baidu.mapapi.model.LatLngBounds;
+import com.baidu.mapapi.utils.DistanceUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -86,8 +87,14 @@ public class ClusterOverlay implements BaiduMap.OnMapStatusChangeListener, Baidu
         mClusters = new ArrayList<>();
         this.mAMap = amap;
         mClusterSize = clusterSize;
-        mPXInMeters = mAMap.getScalePerPixel();
+
+        Projection projection = amap.getProjection();
+        LatLng latLng0 = projection.fromScreenLocation(new Point(0, 0));
+        LatLng latLng1 = projection.fromScreenLocation(new Point(0, mClusterSize));
+        mPXInMeters = (float) DistanceUtil.getDistance(latLng0, latLng1);
+//        mPXInMeters = mAMap.getScalePerPixel();
         mClusterDistance = mPXInMeters * mClusterSize;
+
         amap.setOnMapStatusChangeListener(this);
         amap.setOnMarkerClickListener(this);
         initThreadHandler();
@@ -157,8 +164,15 @@ public class ClusterOverlay implements BaiduMap.OnMapStatusChangeListener, Baidu
 
     @Override
     public void onMapStatusChangeFinish(MapStatus mapStatus) {
-        mPXInMeters = mAMap.getScalePerPixel();
+//        mPXInMeters = mAMap.getScalePerPixel();
+//        mClusterDistance = mPXInMeters * mClusterSize;
+
+        Projection projection = mAMap.getProjection();
+        LatLng latLng0 = projection.fromScreenLocation(new Point(0, 0));
+        LatLng latLng1 = projection.fromScreenLocation(new Point(0, mClusterSize));
+        mPXInMeters = (float) DistanceUtil.getDistance(latLng0, latLng1);
         mClusterDistance = mPXInMeters * mClusterSize;
+
         assignClusters();
     }
 
@@ -168,7 +182,7 @@ public class ClusterOverlay implements BaiduMap.OnMapStatusChangeListener, Baidu
         if (mClusterClickListener == null) {
             return true;
         }
-        Bundle bundle=arg0.getExtraInfo();
+        Bundle bundle = arg0.getExtraInfo();
         Cluster cluster = (Cluster) bundle.getSerializable("aaaa");
 //        Cluster cluster = (Cluster) arg0.getObject();
         if (cluster != null) {
@@ -185,12 +199,7 @@ public class ClusterOverlay implements BaiduMap.OnMapStatusChangeListener, Baidu
     private void addClusterToMap(List<Cluster> clusters) {
         ArrayList<Marker> removeMarkers = new ArrayList<>();
         removeMarkers.addAll(mAddMarkers);
-//        AlphaAnimation alphaAnimation = new AlphaAnimation(1, 0);
-//        MyAnimationListener myAnimationListener = new MyAnimationListener(removeMarkers);
         for (Marker marker : removeMarkers) {
-//            marker.setAnimation(alphaAnimation);
-//            marker.setAnimationListener(myAnimationListener);
-//            marker.startAnimation();
             marker.remove();
         }
         removeMarkers.clear();
@@ -229,7 +238,7 @@ public class ClusterOverlay implements BaiduMap.OnMapStatusChangeListener, Baidu
     private void calculateClusters() {
         mIsCanceled = false;
         mClusters.clear();
-        LatLngBounds visibleBounds = mAMap.getProjection().getVisibleRegion().latLngBounds;
+        LatLngBounds visibleBounds = mAMap.getMapStatus().bound;
         for (ClusterItem clusterItem : mClusterItems) {
             if (mIsCanceled) {
                 return;
@@ -274,7 +283,7 @@ public class ClusterOverlay implements BaiduMap.OnMapStatusChangeListener, Baidu
      * @param clusterItem
      */
     private void calculateSingleCluster(ClusterItem clusterItem) {
-        LatLngBounds visibleBounds = mAMap.getProjection().getVisibleRegion().latLngBounds;
+        LatLngBounds visibleBounds = mAMap.getMapStatus().bound;
         LatLng latlng = clusterItem.getPosition();
         if (!visibleBounds.contains(latlng)) {
             return;
@@ -311,7 +320,7 @@ public class ClusterOverlay implements BaiduMap.OnMapStatusChangeListener, Baidu
     private Cluster getCluster(LatLng latLng, List<Cluster> clusters) {
         for (Cluster cluster : clusters) {
             LatLng clusterCenterPoint = cluster.getCenterLatLng();
-            double distance = AMapUtils.calculateLineDistance(latLng, clusterCenterPoint);
+            double distance = DistanceUtil.getDistance(latLng, clusterCenterPoint);
             if (distance < mClusterDistance) {
                 return cluster;
             }

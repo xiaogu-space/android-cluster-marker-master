@@ -12,6 +12,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
 import com.amap.apis.cluster.demo.RegionItem;
+import com.baidu.mapapi.SDKInitializer;
 import com.baidu.mapapi.map.BaiduMap;
 import com.baidu.mapapi.map.MapPoi;
 import com.baidu.mapapi.map.MapView;
@@ -34,6 +35,7 @@ public class MainActivity extends Activity implements ClusterRender, BaiduMap.On
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        SDKInitializer.initialize(getApplicationContext());
         setContentView(R.layout.activity_main);
         mMapView = (MapView) findViewById(R.id.map);
         mMapView.onCreate(this, savedInstanceState);

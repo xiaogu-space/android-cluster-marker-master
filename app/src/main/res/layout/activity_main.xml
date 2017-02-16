@@ -8,7 +8,7 @@
     tools:context="com.amap.apis.cluster.MainActivity">
 
 
-    <com.amap.api.maps.MapView
+    <com.baidu.mapapi.map.MapView
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/map"
         android:layout_width="match_parent"
