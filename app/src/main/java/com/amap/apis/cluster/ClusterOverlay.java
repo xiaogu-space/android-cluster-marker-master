@@ -48,7 +48,6 @@ public class ClusterOverlay implements BaiduMap.OnMapStatusChangeListener, Baidu
     private HandlerThread mSignClusterThread = new HandlerThread("calculateCluster");
     private Handler mMarkerhandler;
     private Handler mSignClusterHandler;
-    private float mPXInMeters;
     private boolean mIsCanceled = false;
 
     /**
@@ -205,8 +204,6 @@ public class ClusterOverlay implements BaiduMap.OnMapStatusChangeListener, Baidu
             addSingleClusterToMap(cluster);
         }
     }
-
-    private AlphaAnimation mADDAnimation = new AlphaAnimation(0, 1);
 
     /**
      * 将单个聚合元素添加至地图显示
