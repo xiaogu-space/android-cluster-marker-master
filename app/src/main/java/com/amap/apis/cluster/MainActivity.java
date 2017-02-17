@@ -89,7 +89,7 @@ public class MainActivity extends Activity implements ClusterRender, BaiduMap.On
             public void run() {
                 List<ClusterItem> items = new ArrayList<>();
                 //随机10000个点
-                for (int i = 0; i < 100; i++) {
+                for (int i = 0; i < 10000; i++) {
                     double lat = Math.random() + 39.474923;
                     double lon = Math.random() + 116.027116;
                     LatLng latLng = new LatLng(lat, lon);
