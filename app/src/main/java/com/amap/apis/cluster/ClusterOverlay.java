@@ -12,7 +12,6 @@ import android.support.v4.util.LruCache;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
-import android.view.animation.AlphaAnimation;
 import android.widget.TextView;
 
 import com.baidu.mapapi.map.BaiduMap;
@@ -41,7 +40,7 @@ public class ClusterOverlay implements BaiduMap.OnMapStatusChangeListener, Baidu
     private int mClusterSize;
     private ClusterClickListener mClusterClickListener;
     private ClusterRender mClusterRender;
-    private List<Marker> mAddMarkers = new ArrayList<Marker>();
+    private List<Marker> mAddMarkers = new ArrayList<>();
     private double mClusterDistance;
     private LruCache<Integer, BitmapDescriptor> mLruCache;
     private HandlerThread mMarkerHandlerThread = new HandlerThread("addMarker");
@@ -224,7 +223,6 @@ public class ClusterOverlay implements BaiduMap.OnMapStatusChangeListener, Baidu
         mAddMarkers.add(marker);
     }
 
-
     private void calculateClusters() {
         mIsCanceled = false;
         mClusters.clear();
@@ -295,7 +293,6 @@ public class ClusterOverlay implements BaiduMap.OnMapStatusChangeListener, Baidu
             message.what = MarkerHandler.ADD_SINGLE_CLUSTER;
             message.obj = cluster;
             mMarkerhandler.sendMessage(message);
-
         }
     }
 
@@ -337,7 +334,6 @@ public class ClusterOverlay implements BaiduMap.OnMapStatusChangeListener, Baidu
             }
             bitmapDescriptor = BitmapDescriptorFactory.fromView(textView);
             mLruCache.put(num, bitmapDescriptor);
-
         }
         return bitmapDescriptor;
     }
