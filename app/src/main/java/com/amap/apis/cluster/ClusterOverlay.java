@@ -325,8 +325,8 @@ public class ClusterOverlay implements BaiduMap.OnMapStatusChangeListener, Baidu
                 textView.setText(tile);
             }
             textView.setGravity(Gravity.CENTER);
-            textView.setTextColor(Color.BLACK);
-            textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15);
+            textView.setTextColor(Color.WHITE);
+            textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10);
             if (mClusterRender != null && mClusterRender.getDrawAble(num) != null) {
                 textView.setBackgroundDrawable(mClusterRender.getDrawAble(num));
             } else {

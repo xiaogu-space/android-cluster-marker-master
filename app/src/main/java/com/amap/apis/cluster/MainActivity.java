@@ -10,6 +10,7 @@ import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 
 import com.amap.apis.cluster.demo.RegionItem;
 import com.baidu.mapapi.SDKInitializer;
@@ -89,7 +90,7 @@ public class MainActivity extends Activity implements ClusterRender, BaiduMap.On
             public void run() {
                 List<ClusterItem> items = new ArrayList<>();
                 //随机10000个点
-                for (int i = 0; i < 10000; i++) {
+                for (int i = 0; i < 7720; i++) {
                     double lat = Math.random() + 39.474923;
                     double lon = Math.random() + 116.027116;
                     LatLng latLng = new LatLng(lat, lon);
@@ -110,48 +111,43 @@ public class MainActivity extends Activity implements ClusterRender, BaiduMap.On
 
     @Override
     public Drawable getDrawAble(int clusterNum) {
-        int radius = dp2px(getApplicationContext(), 80);
         if (clusterNum == 1) {
             Drawable bitmapDrawable = mBackDrawAbles.get(1);
             if (bitmapDrawable == null) {
-                bitmapDrawable = getApplication().getResources().getDrawable(R.drawable.icon_openmap_mark);
+                bitmapDrawable = getResources().getDrawable(R.drawable.icon_openmap_mark);
                 mBackDrawAbles.put(1, bitmapDrawable);
             }
             return bitmapDrawable;
-        } else if (clusterNum < 5) {
+        } else if (clusterNum < 10) {
             Drawable bitmapDrawable = mBackDrawAbles.get(2);
             if (bitmapDrawable == null) {
-                bitmapDrawable = new BitmapDrawable(null, drawCircle(radius, Color.argb(159, 210, 154, 6)));
+                bitmapDrawable = ContextCompat.getDrawable(this, R.drawable.shape_circle_20);
                 mBackDrawAbles.put(2, bitmapDrawable);
             }
             return bitmapDrawable;
-        } else if (clusterNum < 10) {
+        } else if (clusterNum < 50) {
             Drawable bitmapDrawable = mBackDrawAbles.get(3);
             if (bitmapDrawable == null) {
-                bitmapDrawable = new BitmapDrawable(null, drawCircle(radius, Color.argb(199, 217, 114, 0)));
+                bitmapDrawable = ContextCompat.getDrawable(this, R.drawable.shape_circle_23);
                 mBackDrawAbles.put(3, bitmapDrawable);
             }
             return bitmapDrawable;
-        } else {
+        } else if(clusterNum < 100) {
             Drawable bitmapDrawable = mBackDrawAbles.get(4);
             if (bitmapDrawable == null) {
-                bitmapDrawable = new BitmapDrawable(null, drawCircle(radius, Color.argb(235, 215, 66, 2)));
+                bitmapDrawable = ContextCompat.getDrawable(this, R.drawable.shape_circle_25);
                 mBackDrawAbles.put(4, bitmapDrawable);
+            }
+            return bitmapDrawable;
+        }else {
+            Drawable bitmapDrawable = mBackDrawAbles.get(5);
+            if (bitmapDrawable == null) {
+                bitmapDrawable = ContextCompat.getDrawable(this, R.drawable.shape_circle_28);
+                mBackDrawAbles.put(5, bitmapDrawable);
             }
             return bitmapDrawable;
         }
     }
-
-    private Bitmap drawCircle(int radius, int color) {
-        Bitmap bitmap = Bitmap.createBitmap(radius * 2, radius * 2, Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bitmap);
-        Paint paint = new Paint();
-        RectF rectF = new RectF(0, 0, radius * 2, radius * 2);
-        paint.setColor(color);
-        canvas.drawArc(rectF, 0, 360, true, paint);
-        return bitmap;
-    }
-
     /**
      * 根据手机的分辨率从 dp 的单位 转成为 px(像素)
      */
